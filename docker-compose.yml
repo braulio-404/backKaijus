@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: kaiju-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123 # Cambia esto por una contraseña segura
+      POSTGRES_DB: kaiju_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kaiju-backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      # Variables de entorno para que NestJS se conecte a la base de datos
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password123
+      DB_NAME: kaiju_db
+      # O si usas Prisma/TypeORM con una sola URL:
+      # DATABASE_URL: postgresql://postgres:password123@db:5432/kaiju_db
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
