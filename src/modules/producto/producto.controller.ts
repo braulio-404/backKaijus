@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ProductoService } from './producto.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
+import { DescontarStockDto } from './dto/descontar-stock.dto';
 
 @Controller('productos')
 export class ProductoController {
@@ -10,6 +11,12 @@ export class ProductoController {
   @Post()
   create(@Body() createProductoDto: CreateProductoDto) {
     return this.productoService.create(createProductoDto);
+  }
+
+  // IMPORTANTE: Esta ruta debe ir ANTES de :id para que NestJS no la confunda
+  @Post('descontar')
+  descontarStock(@Body() descontarStockDto: DescontarStockDto) {
+    return this.productoService.descontarStock(descontarStockDto);
   }
 
   @Get()

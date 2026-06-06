@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
+import { DescontarStockDto } from './dto/descontar-stock.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Producto } from './entities/producto.entity';
 import { Categoria } from '../categoria/entities/categoria.entity';
+import { HistorialService } from '../historial/historial.service';
 
 @Injectable()
 export class ProductoService {
@@ -13,6 +15,7 @@ export class ProductoService {
     private readonly productoRepository: Repository<Producto>,
     @InjectRepository(Categoria)
     private readonly categoriaRepository: Repository<Categoria>,
+    private readonly historialService: HistorialService,
   ) { }
 
   async create(createProductoDto: CreateProductoDto) {
@@ -136,5 +139,67 @@ export class ProductoService {
     } catch (error) {
       throw error;
     }
+  }
+
+  /**
+   * Descuenta stock de múltiples productos en una sola operación.
+   * - tipo 'venta'  → descuenta stock + incrementa unidadesVendidas + registra en historial
+   * - tipo 'torneo' → descuenta stock solamente (premio/regalo) + registra en historial
+   */
+  async descontarStock(dto: DescontarStockDto) {
+    const errores: string[] = [];
+
+    for (const item of dto.items) {
+      const producto = await this.productoRepository.findOne({
+        where: { id: item.productoId, activo: true },
+      });
+
+      if (!producto) {
+        errores.push(`Producto ID ${item.productoId} no encontrado`);
+        continue;
+      }
+
+      if (producto.stock < item.cantidad) {
+        errores.push(`Stock insuficiente para "${producto.nombre}" (disponible: ${producto.stock}, solicitado: ${item.cantidad})`);
+        continue;
+      }
+
+      // Descontamos el stock siempre
+      producto.stock -= item.cantidad;
+
+      // Solo en ventas incrementamos unidadesVendidas
+      if (dto.tipo === 'venta') {
+        producto.unidadesVendidas = (producto.unidadesVendidas || 0) + item.cantidad;
+      }
+
+      await this.productoRepository.save(producto);
+    }
+
+    if (errores.length > 0) {
+      throw new BadRequestException(errores);
+    }
+
+    // Descripción legible para el historial
+    const resumen = dto.items
+      .map(i => `${i.nombre} x${i.cantidad} [pv:${(i as any).precioVenta ?? 0}]`)
+      .join(', ');
+
+    const ganancia = dto.totalVenta - dto.totalCosto;
+
+    const descripcion = dto.tipo === 'venta'
+      ? `Venta registrada | Total: $${dto.totalVenta.toLocaleString('es-CL')} | Costo: $${dto.totalCosto.toLocaleString('es-CL')} | Ganancia: $${ganancia.toLocaleString('es-CL')} | Pago: ${dto.metodoPago} | Items: ${resumen}`
+      : `Descuento por torneo | Items entregados: ${resumen}`;
+
+    await this.historialService.create({
+      accion: dto.tipo === 'venta' ? 'VENTA' : 'TORNEO',
+      modulo: 'Productos',
+      descripcion,
+      usuario: 'Sistema',
+    });
+
+    return {
+      ok: true,
+      message: dto.tipo === 'venta' ? 'Venta registrada exitosamente' : 'Stock descontado por torneo exitosamente',
+    };
   }
 }
