@@ -26,7 +26,7 @@ import { AuthModule } from './modules/auth/auth.module';
         password: configService.get<string>('PGPASSWORD'),
         database: configService.get<string>('PGDATABASE'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
         logging: true,
       }),
     }),
