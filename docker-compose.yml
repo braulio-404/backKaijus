@@ -25,11 +25,12 @@ services:
     environment:
       PORT: 3000
       # Variables de entorno para que NestJS se conecte a la base de datos
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: password123
-      DB_NAME: kaiju_db
+      PGHOST: db
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: password123
+      PGDATABASE: kaiju_db
+      PGDATA: /var/lib/postgresql/data/pgdata
       # O si usas Prisma/TypeORM con una sola URL:
       # DATABASE_URL: postgresql://postgres:password123@db:5432/kaiju_db
     depends_on:
