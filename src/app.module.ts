@@ -8,6 +8,7 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
 import { ProductoModule } from './modules/producto/producto.module';
 import { HistorialModule } from './modules/historial/historial.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CajaModule } from './modules/caja/caja.module';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { AuthModule } from './modules/auth/auth.module';
         password: configService.get<string>('PGPASSWORD'),
         database: configService.get<string>('PGDATABASE'),
         autoLoadEntities: true,
-        synchronize: false,
+        synchronize: true,
         logging: true,
       }),
     }),
@@ -36,6 +37,7 @@ import { AuthModule } from './modules/auth/auth.module';
     ProductoModule,
     HistorialModule,
     AuthModule,
+    CajaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
