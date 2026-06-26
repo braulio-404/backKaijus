@@ -11,7 +11,7 @@ export class UpdateCajaBalanceDto {
 
   @IsNotEmpty({ message: 'El monto es obligatorio' })
   @IsNumber({}, { message: 'El monto debe ser un número' })
-  @Min(0.01, { message: 'El monto debe ser mayor a 0' })
+  @Min(0, { message: 'El monto debe ser mayor o igual a 0' })
   monto: number;
 
   @IsNotEmpty({ message: 'El comentario es obligatorio' })
