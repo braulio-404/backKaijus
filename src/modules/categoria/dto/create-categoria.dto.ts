@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString, IsBoolean, IsOptional, IsNumber } from "class-val
 
 export class CreateCategoriaDto {
 
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Falta agregar nombre' })
     @IsString()
     nombre: string;
 

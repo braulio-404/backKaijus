@@ -3,36 +3,36 @@ import { Rol } from "../entities/usuario.entity";
 
 export class CreateUsuarioDto {
 
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Falta agregar nombre' })
     @IsString()
     nombre: string;
 
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Falta agregar apellido' })
     @IsString()
     apellido: string;
 
-    @IsNotEmpty()
-    @IsEmail()
+    @IsNotEmpty({ message: 'Falta agregar correo electrónico' })
+    @IsEmail({}, { message: 'El correo electrónico no es válido' })
     email: string;
 
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Falta agregar nombre de usuario' })
     @IsString()
     username: string;
 
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Falta agregar contraseña' })
     @IsString()
     password: string;
 
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Falta agregar teléfono' })
     @IsString()
     telefono: string;
 
     @IsBoolean()
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Falta agregar estado' })
     estado: boolean;
 
     @IsOptional()
-    @IsEnum(Rol)
+    @IsEnum(Rol, { message: 'El rol seleccionado no es válido' })
     rol?: string;
 
 }

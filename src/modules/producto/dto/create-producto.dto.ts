@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsString, IsNumber, IsOptional, IsBoolean, IsUUID } from "class-validator";
+import { IsNotEmpty, IsString, IsNumber, IsOptional, IsBoolean } from "class-validator";
 
 export class CreateProductoDto {
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Falta agregar nombre' })
   @IsString()
   nombre: string;
 
@@ -9,20 +9,20 @@ export class CreateProductoDto {
   @IsString()
   descripcion?: string;
 
-  @IsNotEmpty()
-  @IsNumber()
+  @IsNotEmpty({ message: 'Falta agregar stock' })
+  @IsNumber({}, { message: 'El stock debe ser un número' })
   stock: number;
 
   @IsOptional()
   @IsNumber()
   unidadesVendidas?: number;
 
-  @IsNotEmpty()
-  @IsNumber()
+  @IsNotEmpty({ message: 'Falta agregar precio de compra' })
+  @IsNumber({}, { message: 'El precio de compra debe ser un número' })
   precioCompra: number;
 
-  @IsNotEmpty()
-  @IsNumber()
+  @IsNotEmpty({ message: 'Falta agregar precio de venta' })
+  @IsNumber({}, { message: 'El precio de venta debe ser un número' })
   precioVenta: number;
 
   @IsOptional()
@@ -34,8 +34,8 @@ export class CreateProductoDto {
   activo?: boolean;
 
   // ID de la categoría a la que pertenece
-  @IsNotEmpty()
-  @IsNumber()
+  @IsNotEmpty({ message: 'Falta agregar categoría' })
+  @IsNumber({}, { message: 'La categoría seleccionada no es válida' })
   categoriaId: number;
 
   // Propiedades opcionales que puede enviar el front-end para evitar errores de validación
