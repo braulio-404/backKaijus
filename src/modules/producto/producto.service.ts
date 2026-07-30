@@ -202,4 +202,44 @@ export class ProductoService {
       message: dto.tipo === 'venta' ? 'Venta registrada exitosamente' : 'Stock descontado por torneo exitosamente',
     };
   }
+
+  async adjustStock(id: number, dto: { cantidad: number; tipo: 'sumar' | 'restar' }, user: any) {
+    try {
+      const producto = await this.productoRepository.findOne({
+        where: { id, activo: true }
+      });
+
+      if (!producto) {
+        throw new NotFoundException(`Producto con ID ${id} no encontrado`);
+      }
+
+      const originalStock = producto.stock;
+      if (dto.tipo === 'sumar') {
+        producto.stock += dto.cantidad;
+      } else {
+        if (producto.stock < dto.cantidad) {
+          throw new BadRequestException(`No hay suficiente stock para restar (Disponible: ${producto.stock}, Solicitado: ${dto.cantidad})`);
+        }
+        producto.stock -= dto.cantidad;
+      }
+
+      const saved = await this.productoRepository.save(producto);
+
+      // Guardar en el historial (log)
+      await this.historialService.create({
+        accion: dto.tipo === 'sumar' ? 'INCREMENTAR_STOCK' : 'DECREMENTAR_STOCK',
+        modulo: 'Productos',
+        descripcion: `Stock de "${producto.nombre}" ajustado por ${user.username}. Anterior: ${originalStock}, Nuevo: ${saved.stock} (Diferencia: ${dto.tipo === 'sumar' ? '+' : '-'}${dto.cantidad})`,
+        usuario: user.username || 'Sistema',
+      });
+
+      return {
+        success: true,
+        message: 'Stock ajustado exitosamente',
+        stock: saved.stock
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 }

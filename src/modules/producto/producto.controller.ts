@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { ProductoService } from './producto.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
@@ -43,6 +43,17 @@ export class ProductoController {
     return this.productoService.update(+id, updateProductoDto);
   }
 
+  @Patch(':id/stock')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Rol.SUPER_ADMIN)
+  adjustStock(
+    @Param('id') id: string,
+    @Body() adjustStockDto: { cantidad: number; tipo: 'sumar' | 'restar' },
+    @Request() req: any
+  ) {
+    return this.productoService.adjustStock(+id, adjustStockDto, req.user);
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Rol.SUPER_ADMIN)
@@ -50,4 +61,5 @@ export class ProductoController {
     return this.productoService.remove(+id);
   }
 }
+
 
