@@ -1,6 +1,11 @@
 
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
+export enum Rol {
+  SUPER_ADMIN = 'superadmin',
+  VENTAS = 'ventas'
+}
+
 @Entity('usuarios')
 export class Usuario {
 
@@ -28,4 +33,8 @@ export class Usuario {
     @Column({ type: 'boolean', default: true })
     estado: boolean;
 
+    @Column({ type: 'varchar', length: 50, default: Rol.VENTAS })
+    rol: string;
+
 }
+

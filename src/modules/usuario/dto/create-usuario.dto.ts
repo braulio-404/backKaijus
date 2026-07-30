@@ -1,4 +1,5 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsBoolean, IsEmail, IsNotEmpty, IsString, IsOptional, IsEnum } from "class-validator";
+import { Rol } from "../entities/usuario.entity";
 
 export class CreateUsuarioDto {
 
@@ -30,6 +31,9 @@ export class CreateUsuarioDto {
     @IsNotEmpty()
     estado: boolean;
 
-
+    @IsOptional()
+    @IsEnum(Rol)
+    rol?: string;
 
 }
+

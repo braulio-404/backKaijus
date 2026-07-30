@@ -36,7 +36,8 @@ export class AuthService {
     const payload = { 
       username: user.username, 
       sub: user.id, // 'sub' (subject) es el estandar para el ID
-      email: user.email 
+      email: user.email,
+      rol: user.rol
     };
     
     return {
@@ -48,7 +49,8 @@ export class AuthService {
         username: user.username,
         email: user.email,
         nombre: user.nombre,
-        apellido: user.apellido
+        apellido: user.apellido,
+        rol: user.rol
       }
     };
   }

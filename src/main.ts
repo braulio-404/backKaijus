@@ -8,7 +8,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.enableCors({
-    origin: ['http://localhost:4200', 'https://brauliotesting.cl'],
+    origin: ['http://localhost:4200', 'backoffice.kaijuscenter.cl', 'https://brauliotesting.cl'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
