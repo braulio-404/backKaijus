@@ -3,6 +3,7 @@ import { ProductoService } from './producto.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { DescontarStockDto } from './dto/descontar-stock.dto';
+import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -48,7 +49,7 @@ export class ProductoController {
   @Roles(Rol.SUPER_ADMIN)
   adjustStock(
     @Param('id') id: string,
-    @Body() adjustStockDto: { cantidad: number; tipo: 'sumar' | 'restar' },
+    @Body() adjustStockDto: AdjustStockDto,
     @Request() req: any
   ) {
     return this.productoService.adjustStock(+id, adjustStockDto, req.user);

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { DescontarStockDto } from './dto/descontar-stock.dto';
+import { AdjustStockDto } from './dto/adjust-stock.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Producto } from './entities/producto.entity';
@@ -203,7 +204,7 @@ export class ProductoService {
     };
   }
 
-  async adjustStock(id: number, dto: { cantidad: number; tipo: 'sumar' | 'restar' }, user: any) {
+  async adjustStock(id: number, dto: AdjustStockDto, user: any) {
     try {
       const producto = await this.productoRepository.findOne({
         where: { id, activo: true }

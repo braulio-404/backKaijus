@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { Usuario } from './entities/usuario.entity';
@@ -16,32 +16,24 @@ export class UsuarioService {
 
 
   async create(createUsuarioDto: CreateUsuarioDto) {
-    try {
-      const usuario = this.usuarioRepository.create(createUsuarioDto);
-      const validateEmail = await this.usuarioRepository.findOne({ where: { email: createUsuarioDto.email } });
-      if (validateEmail) {
-        throw new Error('El correo ya existe');
-      }
-
-      const validateUsername = await this.usuarioRepository.findOne({ where: { username: createUsuarioDto.username } });
-      if (validateUsername) {
-        throw new Error('El nombre de usuario ya existe');
-      }
-
-      // Encriptar la contraseña antes de guardar
-      usuario.password = await argon2.hash(createUsuarioDto.password);
-
-      const user = await this.usuarioRepository.save(usuario);
-      // @ts-ignore
-      delete user.password;
-      return { success: true, message: 'Usuario agregado exitosamente' };
-    } catch (error) {
-      return { success: false, message: error.message };
+    const validateEmail = await this.usuarioRepository.findOne({ where: { email: createUsuarioDto.email } });
+    if (validateEmail) {
+      throw new BadRequestException('El correo ya existe');
     }
 
+    const validateUsername = await this.usuarioRepository.findOne({ where: { username: createUsuarioDto.username } });
+    if (validateUsername) {
+      throw new BadRequestException('El nombre de usuario ya existe');
+    }
 
+    const usuario = this.usuarioRepository.create(createUsuarioDto);
+    // Encriptar la contraseña antes de guardar
+    usuario.password = await argon2.hash(createUsuarioDto.password);
 
-
+    const user = await this.usuarioRepository.save(usuario);
+    // @ts-ignore
+    delete user.password;
+    return { success: true, message: 'Usuario agregado exitosamente' };
   }
 
   async findAll() {
@@ -66,22 +58,32 @@ export class UsuarioService {
   }
 
   async update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
-    try {
-      const usuario = await this.usuarioRepository.findOne({ where: { id } });
-      if (!usuario) {
-        throw new Error('Usuario no encontrado');
-      }
-
-      if (updateUsuarioDto.password) {
-        updateUsuarioDto.password = await argon2.hash(updateUsuarioDto.password);
-      }
-
-      const updatedUsuario = Object.assign(usuario, updateUsuarioDto);
-      await this.usuarioRepository.save(updatedUsuario);
-      return { success: true, message: 'Usuario actualizado exitosamente' };
-    } catch (error) {
-      return { success: false, message: error.message };
+    const usuario = await this.usuarioRepository.findOne({ where: { id } });
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
     }
+
+    if (updateUsuarioDto.email) {
+      const validateEmail = await this.usuarioRepository.findOne({ where: { email: updateUsuarioDto.email } });
+      if (validateEmail && validateEmail.id !== id) {
+        throw new BadRequestException('El correo ya existe');
+      }
+    }
+
+    if (updateUsuarioDto.username) {
+      const validateUsername = await this.usuarioRepository.findOne({ where: { username: updateUsuarioDto.username } });
+      if (validateUsername && validateUsername.id !== id) {
+        throw new BadRequestException('El nombre de usuario ya existe');
+      }
+    }
+
+    if (updateUsuarioDto.password) {
+      updateUsuarioDto.password = await argon2.hash(updateUsuarioDto.password);
+    }
+
+    const updatedUsuario = Object.assign(usuario, updateUsuarioDto);
+    await this.usuarioRepository.save(updatedUsuario);
+    return { success: true, message: 'Usuario actualizado exitosamente' };
   }
 
   async remove(id: number) {
