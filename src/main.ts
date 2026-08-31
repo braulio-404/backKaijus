@@ -12,7 +12,7 @@ async function bootstrap() {
   app.use(urlencoded({ limit: '10mb', extended: true }));
 
   app.enableCors({
-    origin: ['http://localhost:4200', 'http://backoffice.kaijuscenter.cl', 'https://brauliotesting.cl'],
+    origin: ['http://localhost:4200', 'https://backoffice.kaijuscenter.cl', 'https://brauliotesting.cl'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
